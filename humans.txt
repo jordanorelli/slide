@@ -1,0 +1,7 @@
+/* Author */
+  Jordan Orelli
+  http://jordanorelli.com
+  @jordanorelli
+  github.com/jordanorelli
+
+Made with love and coffee in Brooklyn, NY
