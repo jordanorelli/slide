@@ -13,8 +13,11 @@
   <script src="js/libs/modernizr-2.5.3.min.js"></script>
 </head>
 <body>
-  <div role="main">
-    <canvas id="puzzle" width="640" height="480"></canvas>
+  <header>
+    here be a puzzle
+  </header>
+  <div id="container" role="main">
+    <canvas id="puzzle" width="400" height="400"></canvas>
   </div>
   <footer>Made with love and coffee in Brooklyn, NY</footer>
 
@@ -24,7 +27,13 @@
   <script>
     $(document).ready(function() {
       if(Modernizr.canvas) {
-        Grid.draw("puzzle", 20);
+        Grid.draw({
+          id:"puzzle",
+          columns: 4,
+          rows: 4,
+          colGutter: 2,
+          rowGutter: 2
+        });
       } else {
         console.log("oh no.");
       }
