@@ -17,26 +17,18 @@
     here be a puzzle
   </header>
   <div id="container" role="main">
-    <canvas id="puzzle" width="400" height="400"></canvas>
+    <div id="puzzle-container"></div>
   </div>
   <footer>Made with love and coffee in Brooklyn, NY</footer>
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
+  <script src="//github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js"></script>
+  <script>window.Raphael || document.write('<script src="js/libs/raphael-min.js"></\script>')</script>
   <script src="js/grid.js"></script>
   <script>
     $(document).ready(function() {
-      if(Modernizr.canvas) {
-        Grid.draw({
-          id:"puzzle",
-          columns: 4,
-          rows: 4,
-          colGutter: 2,
-          rowGutter: 2
-        });
-      } else {
-        console.log("oh no.");
-      }
+      new PuzzleGrid("puzzle-container", 400);
     });
   </script>
   <script>
