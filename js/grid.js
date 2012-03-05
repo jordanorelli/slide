@@ -7,7 +7,7 @@ function Tile(grid, column, row, num) {
   this.num = num;
   this.elem.tile = this; // circular reference.  probably bad.
   this.elem.attr({
-    fill: "url(/img/globe_" + column + "_" + row + ")",
+    fill: "url(/img/globe_" + column + "_" + row + ".jpg)",
     "fill-opacity": 1.0,
   });
   this.grid = grid;
