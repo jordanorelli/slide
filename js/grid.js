@@ -6,17 +6,20 @@ function Tile(grid, column, row, num) {
                               grid.tileGutter);
   this.num = num;
   this.elem.tile = this; // circular reference.  probably bad.
-  this.elem.attr("fill", "white");
+  this.elem.attr({
+    fill: "url(/img/globe_" + column + "_" + row + ")",
+    "fill-opacity": 1.0,
+  });
   this.grid = grid;
   this.row = row;
   this.column = column;
   this.elem.mouseover(function() {
     if(this.tile.can_move()) {
-      this.attr("fill", "red");
+      this.attr("fill-opacity", 0.85);
     }
   });
   this.elem.mouseout(function() {
-    this.attr("fill", "white");
+    this.attr("fill-opacity", 1.0);
   });
   this.elem.click(function() {
     if(this.tile.can_move()) {
