@@ -1,9 +1,10 @@
-function Tile(grid, column, row) {
+function Tile(grid, column, row, num) {
   this.elem = grid.paper.rect(grid.tileGutter * (column + 1) + column * grid.tileWidth,
                               grid.tileGutter * (row + 1) + row * grid.tileHeight,
                               grid.tileWidth,
                               grid.tileHeight,
                               grid.tileGutter);
+  this.num = num;
   this.elem.tile = this; // circular reference.  probably bad.
   this.elem.attr("fill", "white");
   this.grid = grid;
@@ -27,9 +28,11 @@ function Tile(grid, column, row) {
 // can move if in the same row as the empty tile and adjacent column
 // can move if in the same column as the empty tile and adjacent row
 Tile.prototype.can_move = function() {
-  if(this.row === this.grid.empty_row && Math.abs(this.column - this.grid.empty_column) === 1) {
+  if(this.row === this.grid.empty_row &&
+     Math.abs(this.column - this.grid.empty_column) === 1) {
     return true;
-  } else if (this.column === this.grid.empty_column && Math.abs(this.row - this.grid.empty_row) === 1) {
+  } else if (this.column === this.grid.empty_column &&
+             Math.abs(this.row - this.grid.empty_row) === 1) {
     return true;
   }
   return false;
@@ -83,7 +86,7 @@ Tile.prototype.move = function(direction) {
       this.grid.empty_column--;
       break;
   }
-  this.elem.animate(params, 200, "ease-in-out");
+  this.elem.animate(params, 200, "ease-out");
   this.grid.log_empty();
 };
 
@@ -106,7 +109,7 @@ function PuzzleGrid(container_id, width, height) {
   for(var x = 0; x < this.columns; x++) {
     for(var y = 0; y < this.rows; y++) {
       if(x == this.empty_column && y == this.empty_row) { continue; }
-      new Tile(this, x, y);
+      new Tile(this, x, y, x * this.columns + y);
     }
   }
 }
