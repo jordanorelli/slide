@@ -217,8 +217,9 @@ td { vertical-align: top; }
 /* ==|== primary styles =====================================================
    Author:
    ========================================================================== */
-#container { margin: 0 auto; width: 960px; }
-#puzzle-container { margin: 0 auto; width: 940px; }
+/* #container { margin: 0 auto; width: 960px; } */
+#puzzle-container { margin: 20px auto; width: 400px; }
+footer { margin: 0 auto; width: 400px; text-align: center; }
 
 
 
