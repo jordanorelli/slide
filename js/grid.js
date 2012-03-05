@@ -108,11 +108,12 @@ function PuzzleGrid(container_id, width, height) {
   this.tileHeight = Math.floor((this.height - (1 + this.rows) * this.tileGutter) / this.rows);
 
   this.log_empty();
+  this.tiles = [];
 
   for(var x = 0; x < this.columns; x++) {
     for(var y = 0; y < this.rows; y++) {
       if(x == this.empty_column && y == this.empty_row) { continue; }
-      new Tile(this, x, y, x * this.columns + y);
+      this.tiles.push(new Tile(this, x, y, x * this.columns + y));
     }
   }
 }
