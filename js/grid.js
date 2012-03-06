@@ -22,8 +22,11 @@ function Tile(grid, column, row, solution_column, solution_row) {
     eve("tile-mouseout", this.tile.grid, this.tile);
   });
   this.elem.click(function() {
-    eve("tile-click", this.tile.grid, this.tile);
+    eve("tile-click", this.tile.grid, this.tile, 200);
   });
+
+  // eve.on("tile-animation-start", this.lock);
+  // eve.on("tile-animation-end", this.unlock);
 }
 
 // returns true if the tile is in its proper place in the solution image, false
@@ -62,7 +65,7 @@ Tile.prototype.can_move = function() {
   return !!this.move_direction() && !this.locked;
 };
 
-Tile.prototype.move = function(direction) {
+Tile.prototype.move = function(duration) {
   if(!this.can_move()) {
     return;
   }
@@ -94,8 +97,10 @@ Tile.prototype.move = function(direction) {
       break;
   }
   this.locked = true;
-  this.elem.animate(params, 200, "ease-out", function() {
+  eve("tile-animation-start", this);
+  this.elem.animate(params, duration, "ease-out", function() {
     this.tile.locked = false;
+    eve("tile-animation-end", this.tile);
   });
 };
 
@@ -110,6 +115,7 @@ function PuzzleGrid(container_id, control_container_id, width, height) {
   this.empty_column = 3;
   this.tileGutter = 4; // spacing between tiles
 
+  this.scramble_lock = false;
   this.tileWidth = Math.floor((this.width - (1 + this.columns) * this.tileGutter) / this.columns);
   this.tileHeight = Math.floor((this.height - (1 + this.rows) * this.tileGutter) / this.rows);
 
@@ -121,6 +127,7 @@ function PuzzleGrid(container_id, control_container_id, width, height) {
       this.tiles.push(new Tile(this, x, y, x, y));
     }
   }
+  this.last_randomly_moved_tile = this.tiles[0];
   eve.on("tile-click", this.move_tiles);
   eve.on("tile-mouseover", this.mouseover_tile);
   eve.on("tile-mouseout", this.mouseout_tile);
@@ -184,8 +191,12 @@ PuzzleGrid.prototype.random_move = function() {
   var tile = this.random_tile();
   var moved = false;
   while(!moved) {
-    if(tile.can_move()) {
-      this.move_tiles(tile);
+    if(tile.can_move() && tile != this.last_randomly_moved_tile) {
+      var that = this;
+      this.move_tiles(tile, 40, function() {
+        eve("random-move-end", tile);
+      });
+      this.last_randomly_moved_tile = tile;
       moved = true;
     } else {
       tile = this.random_tile();
@@ -193,16 +204,26 @@ PuzzleGrid.prototype.random_move = function() {
   }
 }
 
-PuzzleGrid.prototype.move_tiles = function(source_tile) {
+PuzzleGrid.prototype.move_tiles = function(source_tile, duration, callback) {
   if(source_tile.can_move()) {
     var source_row = source_tile.row;
     var source_column = source_tile.column;
-    $.each(this.get_movement_group(source_tile), function(i, item) {
-      item.move();
+    var group = this.get_movement_group(source_tile);
+    $.each(group, function(i, item) {
+      item.move(duration);
       item.unhighlight();
     });
     this.empty_row = source_row;
     this.empty_column = source_column;
+
+    var tiles_moved = 0;
+    var puzzle = this;
+    eve.on("tile-animation-end", function() {
+      tiles_moved++;
+      if(tiles_moved === group.length) {
+        callback();
+      }
+    });
   }
 };
 
@@ -223,12 +244,24 @@ PuzzleGrid.prototype.mouseout_tile = function(source_tile) {
 };
 
 PuzzleGrid.prototype.scramble = function() {
-  var that = this;
-  this.random_move();
-  var move_count = 1;
-  setInterval(function() {
-    that.random_move();
-  }, 300);
+  if(!this.scramble_lock) {
+    console.log("Start scramblin");
+    this.scramble_lock = true;
+    var that = this;
+    var period = 75;
+    var move_count = 0;
+    this.random_move();
+    var step = function() {
+      if(move_count < 125) {
+        that.random_move();
+      } else {
+        eve.off("random-move-end", step);
+        that.scramble_lock = false;
+      }
+      move_count++;
+    }
+    eve.on("random-move-end", step);
+  }
 };
 
 Controls = function(puzzle, container_id, width, height) {
