@@ -32,11 +32,11 @@ Tile.prototype.in_place = function() {
 };
 
 Tile.prototype.highlight = function() {
-  this.elem.attr("fill-opacity", 0.50);
+  this.elem.animate({"fill-opacity": 0.6}, 250, "ease-out");
 };
 
 Tile.prototype.unhighlight = function() {
-  this.elem.attr("fill-opacity", 1.0);
+  this.elem.animate({"fill-opacity": 1.0}, 250, "ease-out");
 };
 
 Tile.prototype.move_direction = function() {
