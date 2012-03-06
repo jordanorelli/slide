@@ -14,6 +14,7 @@ function Tile(grid, column, row, solution_column, solution_row) {
   this.column = column;
   this.solution_row = solution_row;
   this.solution_column = solution_column;
+  this.locked = false;
   this.elem.mouseover(function() {
     eve("tile-mouseover", this.tile.grid, this.tile);
   });
@@ -58,7 +59,7 @@ Tile.prototype.move_direction = function() {
 };
 
 Tile.prototype.can_move = function() {
-  return !!this.move_direction();
+  return !!this.move_direction() && !this.locked;
 };
 
 Tile.prototype.slide = function() {
@@ -95,8 +96,10 @@ Tile.prototype.move = function(direction) {
       this.column++;
       break;
   }
-  this.elem.animate(params, 200, "ease-out");
-  this.grid.log_empty();
+  this.locked = true;
+  this.elem.animate(params, 200, "ease-out", function() {
+    this.tile.locked = false;
+  });
 };
 
 function PuzzleGrid(container_id, width, height) {
