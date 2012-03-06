@@ -15,6 +15,7 @@
 <body>
   <div id="container" role="main">
     <div id="puzzle-container"></div>
+    <div id="puzzle-controls"></div>
   </div>
   <footer>Made with love and coffee in Brooklyn, NY</footer>
 
@@ -22,19 +23,14 @@
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
   <script src="//github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js"></script>
   <script>window.Raphael || document.write('<script src="js/libs/raphael-min.js"></\script>')</script>
+  <script src="js/libs/raphael-svg-import.js"></script>
   <script src="js/grid.js"></script>
   <script>
     $(document).ready(function() {
       $("#puzzle-container").css("opacity", 0);
-      var puzzle = new PuzzleGrid("puzzle-container", 540, 540);
+      var puzzle = new PuzzleGrid("puzzle-container", "puzzle-controls", 540, 540);
       $("#puzzle-container").animate({opacity: 1.0}, 2000);
     });
-  </script>
-  <script>
-    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-    s.parentNode.insertBefore(g,s)}(document,'script'));
   </script>
 </body>
 </html>

@@ -99,7 +99,7 @@ Tile.prototype.move = function(direction) {
   });
 };
 
-function PuzzleGrid(container_id, width, height) {
+function PuzzleGrid(container_id, control_container_id, width, height) {
   this.width = width;
   this.height = height;
   this.paper = new Raphael(container_id, width, height);
@@ -113,8 +113,6 @@ function PuzzleGrid(container_id, width, height) {
   this.tileWidth = Math.floor((this.width - (1 + this.columns) * this.tileGutter) / this.columns);
   this.tileHeight = Math.floor((this.height - (1 + this.rows) * this.tileGutter) / this.rows);
 
-  this.log_empty();
-
   this.tiles = [];
 
   for(var x = 0; x < this.columns; x++) {
@@ -126,6 +124,9 @@ function PuzzleGrid(container_id, width, height) {
   eve.on("tile-click", this.move_tiles);
   eve.on("tile-mouseover", this.mouseover_tile);
   eve.on("tile-mouseout", this.mouseout_tile);
+
+  this.controls = new Controls(this, control_container_id, 100, 100);
+  eve.on("whisk-click", this.scramble);
 }
 
 // when invoked, tells us if our puzzlegrid is solved or not.
@@ -175,6 +176,23 @@ PuzzleGrid.prototype.get_tile = function(column, row) {
   }
 };
 
+PuzzleGrid.prototype.random_tile = function() {
+  return this.tiles[Math.floor(Math.random() * this.tiles.length)];
+};
+
+PuzzleGrid.prototype.random_move = function() {
+  var tile = this.random_tile();
+  var moved = false;
+  while(!moved) {
+    if(tile.can_move()) {
+      this.move_tiles(tile);
+      moved = true;
+    } else {
+      tile = this.random_tile();
+    }
+  }
+}
+
 PuzzleGrid.prototype.move_tiles = function(source_tile) {
   if(source_tile.can_move()) {
     var source_row = source_tile.row;
@@ -204,9 +222,23 @@ PuzzleGrid.prototype.mouseout_tile = function(source_tile) {
   }
 };
 
-PuzzleGrid.prototype.log_empty = function() {
-  /*
-  console.log("Empty row: " + this.empty_row);
-  console.log("Empty column: " + this.empty_column);
-  */
+PuzzleGrid.prototype.scramble = function() {
+  var that = this;
+  this.random_move();
+  var move_count = 1;
+  setInterval(function() {
+    that.random_move();
+  }, 300);
 };
+
+Controls = function(puzzle, container_id, width, height) {
+  this.paper = new Raphael(container_id, 100, 100);
+  // whisk image courtesy of The Noun Project: http://thenounproject.com/
+  this.whisk = this.paper.set();
+  this.paper.importSVG('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="100px" height="100px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"> <g> <path d="M38.819,61.33c-2.268-2.27-5.943-2.27-8.21,0L5.393,86.545c-2.267,2.267-2.267,5.941,0.001,8.21   c2.266,2.267,5.941,2.267,8.208,0l25.216-25.214C41.085,67.271,41.085,63.596,38.819,61.33z"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M33.022,67.127c0,0,37.88-25.279,49.441-36.84   c13.571-13.566,7.306-19.907,7.306-19.907"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.875,66.979c0,0,34.191-29.24,45.752-40.8   c13.567-13.569,10.994-15.946,10.994-15.946"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M33.022,67.127   c0,0,41.891-21.34,53.453-32.901c13.57-13.57,3.294-23.846,3.294-23.846"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M33.022,67.127   c0,0,45.867-17.367,57.427-28.928c13.567-13.568-0.681-27.819-0.681-27.819"/> <g> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.728,66.834    c0,0,25.277-37.884,36.838-49.444c13.567-13.569,19.909-7.304,19.909-7.304"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.875,66.979    c0,0,29.241-34.189,40.802-45.75c13.566-13.57,15.944-10.996,15.944-10.996"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.728,66.834    c0,0,21.341-41.895,32.9-53.456c13.569-13.568,23.847-3.293,23.847-3.293"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.728,66.834    c0,0,17.365-45.87,28.929-57.431c13.565-13.566,27.818,0.682,27.818,0.682"/> </g> </g> </svg>', this.whisk);
+  this.whisk.push(this.paper.rect(0, 0, 100, 100, 8).attr({fill: "#000", "fill-opacity": 0}));
+  this.whisk.click(function() {
+    eve("whisk-click", puzzle);
+  });
+};
+
