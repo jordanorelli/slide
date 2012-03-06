@@ -15,6 +15,9 @@ function Tile(grid, column, row, solution_column, solution_row) {
   this.solution_row = solution_row;
   this.solution_column = solution_column;
   this.locked = false;
+  if(this.can_move()) {
+    this.elem.attr({cursor: "hand"});
+  }
   this.elem.mouseover(function() {
     eve("tile-mouseover", this.tile.grid, this.tile);
   });
@@ -24,9 +27,6 @@ function Tile(grid, column, row, solution_column, solution_row) {
   this.elem.click(function() {
     eve("tile-click", this.tile.grid, this.tile, 200);
   });
-
-  // eve.on("tile-animation-start", this.lock);
-  // eve.on("tile-animation-end", this.unlock);
 }
 
 // returns true if the tile is in its proper place in the solution image, false
@@ -192,7 +192,6 @@ PuzzleGrid.prototype.random_move = function() {
   var moved = false;
   while(!moved) {
     if(tile.can_move() && tile != this.last_randomly_moved_tile) {
-      var that = this;
       this.move_tiles(tile, 40, function() {
         eve("random-move-end", tile);
       });
@@ -217,10 +216,17 @@ PuzzleGrid.prototype.move_tiles = function(source_tile, duration, callback) {
     this.empty_column = source_column;
 
     var tiles_moved = 0;
-    var puzzle = this;
+    var that = this;
     eve.on("tile-animation-end", function() {
       tiles_moved++;
-      if(tiles_moved === group.length) {
+      for(var i = 0; i < that.tiles.length; i++) {
+        if(that.tiles[i].can_move()) {
+          that.tiles[i].elem.attr({cursor: "hand"});
+        } else {
+          that.tiles[i].elem.attr({cursor: "default"});
+        }
+      }
+      if(typeof callback !== "undefined") {
         callback();
       }
     });
@@ -245,12 +251,9 @@ PuzzleGrid.prototype.mouseout_tile = function(source_tile) {
 
 PuzzleGrid.prototype.scramble = function() {
   if(!this.scramble_lock) {
-    console.log("Start scramblin");
     this.scramble_lock = true;
     var that = this;
-    var period = 75;
     var move_count = 0;
-    this.random_move();
     var step = function() {
       if(move_count < 125) {
         that.random_move();
@@ -261,6 +264,7 @@ PuzzleGrid.prototype.scramble = function() {
       move_count++;
     }
     eve.on("random-move-end", step);
+    this.random_move();
   }
 };
 
@@ -270,6 +274,7 @@ Controls = function(puzzle, container_id, width, height) {
   this.whisk = this.paper.set();
   this.paper.importSVG('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" width="100px" height="100px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"> <g> <path d="M38.819,61.33c-2.268-2.27-5.943-2.27-8.21,0L5.393,86.545c-2.267,2.267-2.267,5.941,0.001,8.21   c2.266,2.267,5.941,2.267,8.208,0l25.216-25.214C41.085,67.271,41.085,63.596,38.819,61.33z"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M33.022,67.127c0,0,37.88-25.279,49.441-36.84   c13.571-13.566,7.306-19.907,7.306-19.907"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.875,66.979c0,0,34.191-29.24,45.752-40.8   c13.567-13.569,10.994-15.946,10.994-15.946"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M33.022,67.127   c0,0,41.891-21.34,53.453-32.901c13.57-13.57,3.294-23.846,3.294-23.846"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M33.022,67.127   c0,0,45.867-17.367,57.427-28.928c13.567-13.568-0.681-27.819-0.681-27.819"/> <g> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.728,66.834    c0,0,25.277-37.884,36.838-49.444c13.567-13.569,19.909-7.304,19.909-7.304"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.875,66.979    c0,0,29.241-34.189,40.802-45.75c13.566-13.57,15.944-10.996,15.944-10.996"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.728,66.834    c0,0,21.341-41.895,32.9-53.456c13.569-13.568,23.847-3.293,23.847-3.293"/> <path fill="none" stroke="#000000" stroke-width="1.0248" stroke-miterlimit="10" d="M32.728,66.834    c0,0,17.365-45.87,28.929-57.431c13.565-13.566,27.818,0.682,27.818,0.682"/> </g> </g> </svg>', this.whisk);
   this.whisk.push(this.paper.rect(0, 0, 100, 100, 8).attr({fill: "#000", "fill-opacity": 0}));
+  this.whisk.attr({cursor: "hand"});
   this.whisk.click(function() {
     eve("whisk-click", puzzle);
   });
