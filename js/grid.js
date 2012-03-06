@@ -62,19 +62,9 @@ Tile.prototype.can_move = function() {
 };
 
 Tile.prototype.slide = function() {
-  if(this.column === this.grid.empty_column) {
-    if(this.row < this.grid.empty_row) {
-      this.move("down");
-    } else {
-      this.move("up");
-    }
-  } else if (this.row === this.grid.empty_row) {
-    if(this.column < this.grid.empty_column) {
-      this.move("right");
-    } else {
-      this.move("left");
-    }
-  }
+  if(this.can_move()) {
+    this.move(this.move_direction());
+  };
 };
 
 Tile.prototype.move = function(direction) {
