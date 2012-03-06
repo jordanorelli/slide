@@ -62,15 +62,12 @@ Tile.prototype.can_move = function() {
   return !!this.move_direction() && !this.locked;
 };
 
-Tile.prototype.slide = function() {
-  if(this.can_move()) {
-    this.move(this.move_direction());
-  };
-};
-
 Tile.prototype.move = function(direction) {
+  if(!this.can_move()) {
+    return;
+  }
   var params = {};
-  switch(direction) {
+  switch(this.move_direction()) {
     case "up":
       params = {
         y: this.elem.attrs.y - this.grid.tileHeight - this.grid.tileGutter
@@ -109,7 +106,7 @@ function PuzzleGrid(container_id, width, height) {
 
   this.rows = 4;
   this.columns = 4;
-  this.empty_row = 2;
+  this.empty_row = 3;
   this.empty_column = 3;
   this.tileGutter = 4; // spacing between tiles
 
@@ -180,26 +177,14 @@ PuzzleGrid.prototype.get_tile = function(column, row) {
 
 PuzzleGrid.prototype.move_tiles = function(source_tile) {
   if(source_tile.can_move()) {
-    var group = this.get_movement_group(source_tile);
-    var direction = source_tile.move_direction();
-    $.each(group, function(i, item) {
-      item.slide();
+    var source_row = source_tile.row;
+    var source_column = source_tile.column;
+    $.each(this.get_movement_group(source_tile), function(i, item) {
+      item.move();
       item.unhighlight();
     });
-    switch(direction) {
-      case "up":
-        this.empty_row += group.length;
-        break;
-      case "down":
-        this.empty_row -= group.length;
-        break;
-      case "left":
-        this.empty_column += group.length;
-        break;
-      case "right":
-        this.empty_column -= group.length;
-        break;
-    }
+    this.empty_row = source_row;
+    this.empty_column = source_column;
   }
 };
 
