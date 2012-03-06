@@ -219,15 +219,17 @@ PuzzleGrid.prototype.move_tiles = function(source_tile, duration, callback) {
     var that = this;
     eve.on("tile-animation-end", function() {
       tiles_moved++;
-      for(var i = 0; i < that.tiles.length; i++) {
-        if(that.tiles[i].can_move()) {
-          that.tiles[i].elem.attr({cursor: "hand"});
-        } else {
-          that.tiles[i].elem.attr({cursor: "default"});
+      if(tiles_moved === group.length) {
+        for(var i = 0; i < that.tiles.length; i++) {
+          if(that.tiles[i].can_move()) {
+            that.tiles[i].elem.attr({cursor: "hand"});
+          } else {
+            that.tiles[i].elem.attr({cursor: "default"});
+          }
         }
-      }
-      if(typeof callback !== "undefined") {
-        callback();
+        if(typeof callback !== "undefined") {
+          callback();
+        }
       }
     });
   }
